@@ -1,57 +1,173 @@
 from pybricks.pupdevices import Motor, ColorSensor
-from pybricks.parameters import Port
+from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
-from pybricks.robotics import DriveBase
+# from pybricks.media.ev3dev import Sound
 
-#SENSORES E MOTORES
+# INICIALIZAÇÃO DOS MOTORES E SENSORES
 sensor_esquerdo = ColorSensor(Port.C)
-sensor_direito = ColorSensor(Port.A) 
+sensor_direito = ColorSensor(Port.A)
 
-me = Motor(Port.D) 
-mt = Motor(Port.F) 
-md = Motor(Port.B)
+me = Motor(Port.D)  # Motor Esquerdo
+md = Motor(Port.B)  # Motor Direito
+mt = Motor(Port.F)  # Motor Adicional (se necessário)
+
+# sound = Sound()  # Para emitir sons
+timer = StopWatch()  # Temporizador
+
+# VALORES DE REFLEXÃO
+LIMIAR_PRETO = 20  # Ajuste conforme necessário
+VELOCIDADE_BASE = 160  # Velocidade padrão
 
 
+def parar_motor():
+    """Função para parar todos os motores."""
+    me.stop()
+    md.stop()
+    mt.stop()
+
+# Função para girar 90° à esquerda
+def g90e():
+    velocidade = 400  # Ajuste a velocidade conforme necessário
+    angulo = 90
+
+    # Motores dianteiros giram em direções opostas
+    md.run_angle(velocidade, angulo)  
+    me.run_angle(velocidade, angulo)
+
+    # Motor traseiro auxilia na rotação
+    mt.run_angle(velocidade, angulo)  
+
+    wait(100)  # Pequeno atraso para estabilizar
+
+def g90d():
+    velocidade = -200  # Ajuste a velocidade conforme necessário
+    angulo = 90
+
+    # Motores dianteiros giram em direções opostas
+    md.run_angle(velocidade, angulo)  
+    me.run_angle(velocidade, angulo)
+
+    # Motor traseiro auxilia na rotação
+    mt.run_angle(velocidade, angulo)  
+
+    wait(100)  # Pequeno atraso para estabilizar
+
+def definir_velocidade(motor, velocidade):
+    """Define a velocidade de um motor específico."""
+    motor.run(velocidade)
+    
+
+def mover_para_frente():
+    velocidade = 160  # Velocidade dos motores
+    tempo = 2000  # Tempo de movimento em milissegundos (simulando millis())
+
+    # Iniciando o cronômetro
+    stopwatch = StopWatch()
+    
+    # Inicia os motores ao mesmo tempo
+    md.run(velocidade)  # Motor Direito
+    me.run(-velocidade)  # Motor Esquerdo
+   
+    
+    # Aguarda até que o tempo especificado tenha passado
+    while stopwatch.time() < tempo:
+        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
+
+    # Após o tempo, para o movimento
+    md.stop()
+    me.stop()
+
+
+
+def verificar_sensor():
+    return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
+
+
+# Função principal para girar 80 graus e verificar o sensor esquerdo
+def giro_com_verificacao():
+    
+    velocidad = 160  # Velocidade dos motores
+    temp = 2000  # Tempo de movimento em milissegundos (simulando millis())
+
+    # Iniciando o cronômetro
+    stopwatch = StopWatch()
+    
+    # Inicia os motores ao mesmo tempo
+    md.run(velocidad)  # Motor Direito
+    me.run(-velocidad)  # Motor Esquerdo
+   
+    
+    # Aguarda até que o tempo especificado tenha passado
+    while stopwatch.time() < temp:
+        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
+
+    # Após o tempo, para o movimento
+    
+    parar_motor()
+    wait(5000)
+
+    # # Verifica se o sensor esquerdo encontrou a cor preta
+    # if not verificar_sensor():  # Se o sensor esquerdo não detectar preto
+    #     print("Sensor esquerdo não detectou preto, voltando para a direita.")
         
-# Função para seguir linha
+    #     # Volta até o sensor da direita detectar preto
+    #     while sensor_direito.reflection() >= 20:
+    #         g90d()
+
+    #     print("Sensor direito detectou preto. Parando.")
+    #     md.stop()
+    #     me.stop()
+    #     mt.stop()
+    # wait(500)
+    
+    # mover_para_frente(-200, 5.3)
+    # timer.reset()
+
+
+    g90d()
+    if sensor_direito.reflection() <= 20:
+        md.stop()
+        me.stop()
+        mt.stop()
+        wait(3000)
+
+
 def seguir_linha():
+    """Função principal para seguir a linha."""
     while True:
-
-        print(sensor_esquerdo.reflection())
-
-        # Obter leituras dos sensores de cor (0 a 100 de intensidade de luz refletida)
         se = sensor_esquerdo.reflection()
         sd = sensor_direito.reflection()
 
-        # Definir linha para distinguir entre preto e branco
-        linha = 50  # Ajuste esse valor conforme necessário
+        # Condição do obstáculo
+        if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+            parar_motor()
+            wait(100)
+            mover_para_frente()
+            wait(100)
+            giro_com_verificacao()
 
-        if se > linha and sd > linha:
-            # Ambos os sensores no preto -> Seguir reto
-            md.run(160)
-            me.run(-160)
+        # Seguir em linha reta
+        elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
+            definir_velocidade(md, VELOCIDADE_BASE)
+            definir_velocidade(me, -VELOCIDADE_BASE)
             mt.run(0)  # Manter reta
 
-        elif se > linha and sd <= linha:
-            # Sensor direito saiu da linha -> Ajustar para direita
-            md.run(-160)
-            me.run(-280)
-            mt.run(-280)  # Girar para direita
+        # Curva para direita
+        elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
+            definir_velocidade(md, -160)
+            definir_velocidade(me, -280)
+            mt.run(-280)
 
-        elif se <= linha and sd > linha:
-            # Sensor esquerdo saiu da linha -> Ajustar para esquerda
-            md.run(160)
-            me.run(280)
-            mt.run(280)  # Girar para esquerda
-        
-        else:
-            # Ambos fora da linha -> Parar
-            md.stop()
-            me.stop()
-            mt.stop()
+        # Curva para esquerda
+        elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
+            definir_velocidade(md, 160)
+            definir_velocidade(me, 280)
+            mt.run(280)
 
         wait(50)  # Pequeno atraso para estabilidade
 
-# Chamando a função principal
+
+# CHAMADA DA FUNÇÃO PRINCIPAL
 seguir_linha()
+
 
