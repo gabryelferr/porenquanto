@@ -17,43 +17,89 @@ mt = Motor(Port.F)  # Motor Adicional (se necessário)
 # VALORES DE REFLEXÃO
 LIMIAR_PRETO = 20  # Ajuste conforme necessário
 PP = 50
-VELOCIDADE_BASE = 150  # Velocidade padrão
+VELOCIDADE_BASE = 120  # Velocidade padrão
+
+
+
+def recuadinha():
+    velocidade = 100  # Velocidade dos motores
+    tempo = 700  # Tempo de movimento em milissegundos (simulando millis())
+
+    # Iniciando o cronômetro
+    stopwatch = StopWatch()
+    
+    # Inicia os motores ao mesmo tempo
+    md.run(-velocidade)  # Motor Direito
+    mt.run(-velocidade)  # Motor Esquerdo
+   
+    
+    # Aguarda até que o tempo especificado tenha passado
+    while stopwatch.time() < tempo:
+        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
+
+    # Após o tempo, para o movimento
+    md.stop()
+    mt.stop()
 
 
 def mov():
+    pretinho = 40
     mover_para_frente()
     wait(50)
     parar_motor()
     wait(1000)
 
+    print("Verificando à direita primeiro...")
     relogio = StopWatch()
     relogio.reset()
-    me.run(150)
-    md.run(150)
-    mt.run(150)
 
-    while relogio.time() < 1080:
-        if sensor_esquerdo.reflection() < 50:
+    me.run(-150)
+    md.run(-150)
+    mt.run(-150)
+
+    while relogio.time() < 300:
+        if sensor_direito.reflection() < pretinho:
+            print("Sensor direito encontrou preto imediatamente!")
+            me.stop()
+            md.stop()
+            mt.stop()
+            break
+        wait(10)
+
+
+    relogio = StopWatch()
+    relogio.reset()
+
+    me.run(255)
+    md.run(255)
+    mt.run(255)
+
+    while relogio.time() < 990:
+        if sensor_esquerdo.reflection() < pretinho:
             print("Sensor esquerdo encontrou preto!")
-            parar_motor()
+            break
         wait(1000)
 
-    if sensor_esquerdo.reflection() >= 60:
+   # === Etapa 3: Se não encontrou preto à esquerda, gira pra direita até achar com o direito
+    if sensor_esquerdo.reflection() >= pretinho:
         print("Não encontrou preto à esquerda, virando para a direita...")
 
         me.run(-150)
-        md.run(-150)  
+        md.run(-150)
         mt.run(-150)
+
         while True:
-            if sensor_direito.reflection() <= 60:
+            if sensor_direito.reflection() < pretinho:
                 print("Sensor direito encontrou preto!")
-                parar_motor()
-            wait(2000)
+                md.run(-200)
+                mt.run(-200)
+                wait(500)
+                break
+            wait(10)
 
     # === Parar os motores ao final
     me.stop()
     md.stop()
-        
 
 
 def parar_motor():
@@ -152,7 +198,7 @@ def definir_velocidade(motor, velocidade):
 
 def mover_para_frente():
     velocidade = 100  # Velocidade dos motores
-    tempo = 1650  # Tempo de movimento em milissegundos (simulando millis())
+    tempo = 1550  # Tempo de movimento em milissegundos (simulando millis())
 
     # Iniciando o cronômetro
     stopwatch = StopWatch()
@@ -186,19 +232,14 @@ def seguir_linha():
         # Condição do obstáculo
         if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
              parar_motor()
-             wait(500)
+             wait(00)
              testtsensor()
              wait(500)
              parar_motor()
-             wait(500)
+             wait(50)
              mov()
-            
-            # parar_motor()
-            # mover_para_frente()
-            # wait(500)
-            # verifblack()
-            # parar_motor()
-            # wait(1000)
+             wait(10)
+             print("dDEU CERTO")
 
         # Seguir em linha reta
         elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
@@ -208,15 +249,34 @@ def seguir_linha():
 
         # Curva para direita
         elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
-            definir_velocidade(md, -160)
-            definir_velocidade(me, -280)
-            mt.run(-280)
+            definir_velocidade(md, -150)
+            definir_velocidade(me, -270)
+            mt.run(-270)
 
         # Curva para esquerda
         elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
-            definir_velocidade(md, 160)
-            definir_velocidade(me, 280)
-            mt.run(280)
+            definir_velocidade(md, 150)
+            definir_velocidade(me, 270)
+            mt.run(270)
+
+        # elif se == LIMIAR_PRETO and sd > LIMIAR_PRETO:
+        #     parar_motor()
+        #     wait(100)
+        #     movf()
+        #     parar_motor()
+        #     girarateque()
 
         wait(50)  # Pequeno atraso para estabilidade
 seguir_linha()
+
+
+
+while True:
+    cor_esq = sensor_esquerdo.color()
+    cor_dir = sensor_direito.color()
+
+    if cor_esq == ColorSensor.RED or cor_dir == ColorSensor.RED:
+        parar_tudo()
+        break  # Sai do loop (pode remover o break se quiser continuar monitorando)
+
+    wait(10)
