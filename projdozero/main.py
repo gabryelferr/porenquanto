@@ -1,6 +1,8 @@
+from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
+hub = PrimeHub(observe_channels=[1])
 # from pybricks.media.ev3dev import Sound
 
 # INICIALIZAÇÃO DOS MOTORES E SENSORES
@@ -15,10 +17,110 @@ mt = Motor(Port.F)  # Motor Adicional (se necessário)
 # # sound = Sound()  # Para emitir sons
 
 # VALORES DE REFLEXÃO
-LIMIAR_PRETO = 20  # Ajuste conforme necessário
+LIMIAR_PRETO = 30  # Ajuste conforme necessário
 PP = 50
-VELOCIDADE_BASE = 120  # Velocidade padrão
+VELOCIDADE_BASE = 190  # Velocidade padrão
 
+def nove(): 
+    me.run(200)
+    md.run(200)
+    mt.run(200)
+    wait(1600)
+
+def novd(): 
+    me.run(-200)
+    md.run(-200)
+    mt.run(-200)
+    wait(1600)
+
+
+
+def executar_verde():
+    variavel_verde = 0
+    print("É VERDE — Executando lógica especial")
+
+    # Anda 3 cm pra frente
+    me.run(-100)
+    md.run(100)
+    mt.run(0)
+    wait(100)
+    parar_motor()
+    wait(100)
+
+    # Detecta qual viu o verde
+    esq_verde = detectar_verde(sensor_esquerdo)
+    dir_verde = detectar_verde(sensor_direito)
+
+    if esq_verde and dir_verde:
+        variavel_verde = 3
+        print("VERDE NOS DOIS SENSORES")
+        me.run(-100)
+        md.run(100)
+        mt.run(0)
+        wait(1300)
+        parar_motor()
+        novd()
+        parar_motor()
+        wait(100)
+        novd()
+        parar_motor()
+        wait(100)
+
+    elif esq_verde:
+        variavel_verde = 2
+        print("VERDE NO SENSOR ESQUERDO")
+        me.run(-100)
+        md.run(100)
+        mt.run(0)
+        wait(1300)
+        nove()
+        parar_motor()
+        wait(100)
+
+    elif dir_verde:
+        variavel_verde = 1
+        print("VERDE NO SENSOR DIREITO")
+        me.run(-100)
+        md.run(100)
+        mt.run(0)
+        wait(1300)
+        novd()
+        parar_motor()
+        wait(100)
+
+    else:
+        print("Falso positivo de verde.")
+    
+    wait(500)
+
+def executar_preto():
+    print("É PRETO — Executando lógica normal de interseção preta")
+    parar_motor()
+    wait(00)
+    testtsensor()
+    wait(500)
+    parar_motor()
+    wait(50)
+    mov()
+    wait(10)
+    print("DEU CERTO")
+
+def detectar_preto(sensor):
+    h, s, v = sensor.hsv()
+    print(f"[PRETO] HSV: h={h}, s={s}, v={v}")
+    return (170 <= h <= 220) and (20 > s) and (38 > v > 5)
+
+
+def detectar_verde(sensor):
+    h, s, v = sensor.hsv()
+    print(f"[VERDE]  HSV detectado: h={h}, s={s}, v={v}")
+    return (148 <= h <= 158) and (85 > s > 60) and (50 > v > 28)
+
+
+def detectar_vermelho(sensor):
+    h, s, v = sensor.hsv()
+    print(f"HSV detectado: h={h}, s={s}, v={v}")
+    return (h >= 340) and (85 > s > 75) and (60 > v > 45)
 
 
 def recuadinha():
@@ -44,7 +146,7 @@ def recuadinha():
 
 def mov():
     pretinho = 40
-    mover_para_frente()
+    mpf_preto()
     wait(50)
     parar_motor()
     wait(1000)
@@ -70,9 +172,9 @@ def mov():
     relogio = StopWatch()
     relogio.reset()
 
-    me.run(255)
-    md.run(255)
-    mt.run(255)
+    me.run(265)
+    md.run(265)
+    mt.run(265)
 
     while relogio.time() < 990:
         if sensor_esquerdo.reflection() < pretinho:
@@ -109,53 +211,6 @@ def parar_motor():
     mt.stop()
 
 
-# def verifblack():
-#     tempo = StopWatch()
-#     tempo.reset()
-
-#     while sensor_esquerdo () > LIMIAR_PRETO and tempo.time < 2500:
-#         girar(2)
-#         wait(10)
-
-#     # === Etapa 2: Verifica se sensor C viu preto ===
-#     if sensor_esquerdo() < LIMIAR_PRETO:
-#         parar_motor()
-#     else:
-#         # === Etapa 3: Gira para direita até sensor A ver preto ===
-#         while sensor_direito() > LIMIAR_PRETO:
-#             girar(150, 1440)
-            
-#             wait(10)
-            
-
-    # tempo_max = 2500  # milissegundos
-    # cronometro = StopWatch()
-    # se = sensor_esquerdo.reflection()
-   
-
-    # # Inicia rotação para esquerda no próprio eixo
-    # girar(150,1400)
-
-    # cronometro.reset()
-    # while se > LIMIAR_PRETO:
-    #     while cronometro.time() < tempo_max:
-    #         girar(150,50)
-    #     break
-
-        
-    # # while se <= LIMIAR_PRETO or cronometro.time() < tempo_max:
-    # #     girar(150,50)
-
-    # if se < LIMIAR_PRETO:
-    #     parar_motor()
-    #     wait(1000)
-    #     print("preto")
-
-    # elif se > LIMIAR_PRETO:
-    #     girar(-800,1000)
-    #     parar_motor()
-    #     wait(2000)
-    #     print("branco")
 
 def testtsensor():
     st = senaoraux.reflection()
@@ -217,6 +272,26 @@ def mover_para_frente():
     me.stop()
 
 
+def mpf_preto():
+    velocidade = 100  # Velocidade dos motores
+    tempo = 1480  # Tempo de movimento em milissegundos (simulando millis())
+
+    # Iniciando o cronômetro
+    stopwatch = StopWatch()
+    
+    # Inicia os motores ao mesmo tempo
+    md.run(velocidade)  # Motor Direito
+    me.run(-velocidade)  # Motor Esquerdo
+   
+    
+    # Aguarda até que o tempo especificado tenha passado
+    while stopwatch.time() < tempo:
+        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
+
+    # Após o tempo, para o movimento
+    md.stop()
+    me.stop()
+
 def verificar_sensor():
     return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
 
@@ -224,22 +299,40 @@ def verificar_sensor():
 def seguir_linha():
     """Função principal para seguir a linha."""
     while True:
+
+        # Verifica se viu vermelho em HSV
+        if detectar_vermelho(sensor_direito or sensor_esquerdo):
+            print("VERMELHO DETECTADO - PARANDO PARA SEMPRE!")
+            parar_motor()
+            break  # Sai do loop
+    
         se = sensor_esquerdo.reflection()
         sd = sensor_direito.reflection()
         st = senaoraux.reflection()
-        print(senaoraux.reflection())
 
-        # Condição do obstáculo
+
+        # # Condição do obstáculo
+        # if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+        #      parar_motor()
+        #      wait(00)
+        #      testtsensor()
+        #      wait(500)
+        #      parar_motor()
+        #      wait(50)
+        #      mov()
+        #      wait(10)
+        #      print("dDEU CERTO")
+
         if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-             parar_motor()
-             wait(00)
-             testtsensor()
-             wait(500)
-             parar_motor()
-             wait(50)
-             mov()
-             wait(10)
-             print("dDEU CERTO")
+            print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
+
+            if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
+                print("É O BLACK")
+                executar_preto()
+
+            elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
+                print("É O GREEN")
+                executar_verde()
 
         # Seguir em linha reta
         elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
@@ -249,34 +342,16 @@ def seguir_linha():
 
         # Curva para direita
         elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
-            definir_velocidade(md, -150)
-            definir_velocidade(me, -270)
-            mt.run(-270)
+            definir_velocidade(md, -200)
+            definir_velocidade(me, -290)
+            mt.run(-295)
 
         # Curva para esquerda
         elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
-            definir_velocidade(md, 150)
-            definir_velocidade(me, 270)
-            mt.run(270)
+            definir_velocidade(me, 200)
+            definir_velocidade(md, 290)
+            mt.run(295)
 
-        # elif se == LIMIAR_PRETO and sd > LIMIAR_PRETO:
-        #     parar_motor()
-        #     wait(100)
-        #     movf()
-        #     parar_motor()
-        #     girarateque()
 
         wait(50)  # Pequeno atraso para estabilidade
 seguir_linha()
-
-
-
-while True:
-    cor_esq = sensor_esquerdo.color()
-    cor_dir = sensor_direito.color()
-
-    if cor_esq == ColorSensor.RED or cor_dir == ColorSensor.RED:
-        parar_tudo()
-        break  # Sai do loop (pode remover o break se quiser continuar monitorando)
-
-    wait(10)
