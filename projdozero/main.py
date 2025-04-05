@@ -2,24 +2,28 @@ from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
-hub = PrimeHub(observe_channels=[1])
-# from pybricks.media.ev3dev import Sound
+from enviar import main_to_sec
+hub = PrimeHub(observe_channels=[125])
 
-# INICIALIZAÇÃO DOS MOTORES E SENSORES
+
 sensor_esquerdo = ColorSensor(Port.C)
 sensor_direito = ColorSensor(Port.A)
 senaoraux = ColorSensor(Port.E)
+mt = Motor(Port.F)
+me = Motor(Port.D)
+md = Motor(Port.B)
 
-me = Motor(Port.D)  # Motor Esquerdo
-md = Motor(Port.B)  # Motor Direito
-mt = Motor(Port.F)  # Motor Adicional (se necessário)
 
-# # sound = Sound()  # Para emitir sons
-
-# VALORES DE REFLEXÃO
-LIMIAR_PRETO = 30  # Ajuste conforme necessário
+LIMIAR_PRETO = 35
 PP = 50
-VELOCIDADE_BASE = 190  # Velocidade padrão
+VELOCIDADE_BASE = 160
+
+
+def moverretao():
+    me.run(-500)
+    md.run(500)
+    wait(10000)
+
 
 def nove(): 
     me.run(200)
@@ -36,22 +40,24 @@ def novd():
 
 
 def executar_verde():
+    parar_motor()
+    hub.speaker.beep(1000, 700)
+    wait(500)
     variavel_verde = 0
     print("É VERDE — Executando lógica especial")
 
-    # Anda 3 cm pra frente
     me.run(-100)
     md.run(100)
     mt.run(0)
-    wait(100)
+    wait(50)
     parar_motor()
     wait(100)
 
-    # Detecta qual viu o verde
     esq_verde = detectar_verde(sensor_esquerdo)
     dir_verde = detectar_verde(sensor_direito)
 
     if esq_verde and dir_verde:
+        hub.speaker.beep(800, 700)
         variavel_verde = 3
         print("VERDE NOS DOIS SENSORES")
         me.run(-100)
@@ -66,30 +72,61 @@ def executar_verde():
         parar_motor()
         wait(100)
 
-    elif esq_verde:
+    elif esq_verde: 
         variavel_verde = 2
         print("VERDE NO SENSOR ESQUERDO")
         me.run(-100)
         md.run(100)
         mt.run(0)
-        wait(1300)
-        nove()
+        wait(1200)
+
+        relogio = StopWatch()
+        relogio.reset()
+
+        me.run(150)
+        md.run(150)
+        mt.run(150)
+
+        while relogio.time() < 5000:
+            if sensor_esquerdo.reflection() < LIMIAR_PRETO:
+                print("SENSOR VIU PRETO")
+                me.stop()
+                md.stop()
+                mt.stop()
+                break
+        wait(10)
         parar_motor()
         wait(100)
 
     elif dir_verde:
         variavel_verde = 1
-        print("VERDE NO SENSOR DIREITO")
+        print("VERDE NO SENSOR DIRETO")
         me.run(-100)
         md.run(100)
         mt.run(0)
-        wait(1300)
-        novd()
+        wait(1200)
+
+        relogio = StopWatch()
+        relogio.reset()
+
+        me.run(-150)
+        md.run(-150)
+        mt.run(-150)
+
+        while relogio.time() < 5000:
+            if sensor_direito.reflection() < LIMIAR_PRETO:
+                print("SENSOR VIU PRETO")
+                me.stop()
+                md.stop()
+                mt.stop()
+                break
+        wait(10)
         parar_motor()
         wait(100)
 
+
     else:
-        print("Falso positivo de verde.")
+        print("NÃO TEM VERDE AQUI")
     
     wait(500)
 
@@ -124,22 +161,16 @@ def detectar_vermelho(sensor):
 
 
 def recuadinha():
-    velocidade = 100  # Velocidade dos motores
-    tempo = 700  # Tempo de movimento em milissegundos (simulando millis())
+    velocidade = 100
+    tempo = 700
 
-    # Iniciando o cronômetro
     stopwatch = StopWatch()
     
-    # Inicia os motores ao mesmo tempo
-    md.run(-velocidade)  # Motor Direito
-    mt.run(-velocidade)  # Motor Esquerdo
+    md.run(-velocidade)
+    mt.run(-velocidade)
    
-    
-    # Aguarda até que o tempo especificado tenha passado
     while stopwatch.time() < tempo:
-        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
-
-    # Após o tempo, para o movimento
+        pass
     md.stop()
     mt.stop()
 
@@ -182,7 +213,6 @@ def mov():
             break
         wait(1000)
 
-   # === Etapa 3: Se não encontrou preto à esquerda, gira pra direita até achar com o direito
     if sensor_esquerdo.reflection() >= pretinho:
         print("Não encontrou preto à esquerda, virando para a direita...")
 
@@ -292,6 +322,8 @@ def mpf_preto():
     md.stop()
     me.stop()
 
+    
+
 def verificar_sensor():
     return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
 
@@ -299,6 +331,12 @@ def verificar_sensor():
 def seguir_linha():
     """Função principal para seguir a linha."""
     while True:
+        main_to_sec()
+        data = hub.ble.observe(125)
+        if not(data == None):
+            print(data)
+            if data == "VIU OBS":
+                parar_motor()
 
         # Verifica se viu vermelho em HSV
         if detectar_vermelho(sensor_direito or sensor_esquerdo):

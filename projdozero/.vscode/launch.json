@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "hublens",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pybricksdev",
+            "args": ["run", "ble", "--name", "hublens", "main.py"],
+        },
+        
+        {
+            "name": "hubsecc",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pybricksdev",
+            "args": ["run", "ble", "--name", "hubsecc", "hub2.py"],
+        },
+    ]
+}
