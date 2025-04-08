@@ -13,6 +13,7 @@ mt = Motor(Port.F)
 me = Motor(Port.D)
 md = Motor(Port.B)
 
+#teste
 
 LIMIAR_PRETO = 35
 PP = 50
