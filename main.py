@@ -2,8 +2,8 @@ from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
-from enviar import main_to_sec
 hub = PrimeHub(observe_channels=[125])
+
 
 
 sensor_esquerdo = ColorSensor(Port.C)
@@ -14,15 +14,12 @@ me = Motor(Port.D)
 md = Motor(Port.B)
 
 
-LIMIAR_PRETO = 35
+LIMIAR_PRETO = 40
+PPP = 35
 PP = 50
 VELOCIDADE_BASE = 160
 
 
-def moverretao():
-    me.run(-500)
-    md.run(500)
-    wait(10000)
 
 
 def nove(): 
@@ -88,7 +85,7 @@ def executar_verde():
         mt.run(150)
 
         while relogio.time() < 5000:
-            if sensor_esquerdo.reflection() < LIMIAR_PRETO:
+            if sensor_esquerdo.reflection() < PPP:
                 print("SENSOR VIU PRETO")
                 me.stop()
                 md.stop()
@@ -114,7 +111,7 @@ def executar_verde():
         mt.run(-150)
 
         while relogio.time() < 5000:
-            if sensor_direito.reflection() < LIMIAR_PRETO:
+            if sensor_direito.reflection() < PPP:
                 print("SENSOR VIU PRETO")
                 me.stop()
                 md.stop()
@@ -251,7 +248,7 @@ def testtsensor():
      print("TA VENDO BRANCO!")
                 
                 
-    if sensor_direito.reflection() < LIMIAR_PRETO and sensor_esquerdo.reflection() < LIMIAR_PRETO and senaoraux.reflection() < LIMIAR_PRETO:
+    if sensor_direito.reflection() < PPP and sensor_esquerdo.reflection() < PPP and senaoraux.reflection() < LIMIAR_PRETO:
      print("INTERSECÇÃO")
 
 
@@ -322,7 +319,75 @@ def mpf_preto():
     md.stop()
     me.stop()
 
+def std():
+    md.stop
+    me.stop
+    mt.run_time(150, 3500)
+    md.run_time(-100, 400)
+    parar_motor()
+    wait(200)
+
+def ste():
+    md.stop
+    me.stop
+    mt.run_time(-150, 3500)
+    me.run_time(100, 450)
+    parar_motor()
+    wait(200)
+
+def obstaculo(): 
+    parar_motor()
+    hub.speaker.beep(200,500)
+    wait(200)
+    std()
+    parar_motor
+    wait(200)
+
+def mpf():
+    velocidade = 100  # Velocidade dos motores
+    tempo = 1000  # Tempo de movimento em milissegundos (simulando millis())
+            
+
+def diagonald():
+    me.run(-170)
+    md.run(120)
+    mt.run(480)
+    wait(1700)
+
+
+
+def diagonale():
+        relogio = StopWatch()
+        relogio.reset()
+        md.run(170)
+        me.run(-130)
+        mt.run(-480)
+
+        while relogio.time() < 10000:
+            if sensor_esquerdo.reflection() < PPP:
+                print("SENSOR VIU PRETO")
+                me.stop()
+                md.stop()
+                mt.stop()
+                break
+        wait(10)
+        parar_motor()
+        wait(100)
+
+def moverretao():
+    me.run(-200)
+    md.run(200)
+    wait(3800)
+
+
+def re():
+    me.run(200)
+    md.run(-200)
+    wait(800)
+
     
+def tocar_som():
+    hub.speaker.beep()
 
 def verificar_sensor():
     return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
@@ -331,12 +396,35 @@ def verificar_sensor():
 def seguir_linha():
     """Função principal para seguir a linha."""
     while True:
-        main_to_sec()
-        data = hub.ble.observe(125)
-        if not(data == None):
-            print(data)
-            if data == "VIU OBS":
+        comando = hub.ble.observe(125)
+        if comando:
+            print("Comando recebido:", comando)
+            if comando == "VIU OBS":
                 parar_motor()
+                wait(100)
+                re()
+                diagonald()
+                parar_motor()
+                wait(1000)
+                moverretao()
+                diagonale()
+                parar_motor()
+                wait(2000)
+                
+
+                # obstaculo()
+                # parar_motor()
+                # wait(100)
+
+
+        # main_to_sec()
+        # data = hub.ble.observe(125)
+        # if not(data == None):
+        #     print(data)
+        #     if data == "VIU OBS":
+        #         parar_motor()
+        #         wait(100)
+        #         obstaculo()
 
         # Verifica se viu vermelho em HSV
         if detectar_vermelho(sensor_direito or sensor_esquerdo):
