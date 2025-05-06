@@ -55,20 +55,29 @@ def executar_verde():
     dir_verde = detectar_verde(sensor_direito)
 
     if esq_verde and dir_verde:
-        hub.speaker.beep(800, 700)
-        variavel_verde = 3
+        hub.speaker.beep(800, 700)  # Emite um som quando ambos os sensores veem verde
+        variavel_verde = 3  # Atualiza a variável para indicar que os sensores estão vendo verde
         print("VERDE NOS DOIS SENSORES")
-        me.run(-100)
-        md.run(100)
-        mt.run(0)
-        wait(1300)
-        parar_motor()
-        novd()
-        parar_motor()
-        wait(100)
-        novd()
-        parar_motor()
-        wait(100)
+
+        # Realiza o movimento de rotação de 360 graus
+        me.run(100)  # Motor esquerdo (me) gira para frente
+        md.run(-100)  # Motor direito (md) gira para trás
+        wait(2000)  # Ajuste o tempo para completar o giro de 360 graus (pode ser necessário calibrar esse tempo)
+        
+        # Para a rotação e ajusta o robô para seguir no sentido contrário
+        me.run(-100)  # Motor esquerdo (me) agora vai para trás
+        md.run(100)  # Motor direito (md) agora vai para frente
+
+        wait(1000)  # Aguarda um tempo para garantir que o robô está seguindo a linha no sentido oposto
+
+        # Parando os motores após o movimento
+        parar_motor()  
+        novd()  # Se essa função é usada para alguma tarefa específica, mantenha
+        parar_motor()  # Garante que todos os motores parem
+        wait(100)  # Pausa adicional
+        novd()  # Caso necessário
+        parar_motor()  # Garante a parada final dos motores
+
 
     elif esq_verde: 
         variavel_verde = 2
