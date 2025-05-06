@@ -345,13 +345,13 @@ def ste():
     parar_motor()
     wait(200)
 
-def obstaculo(): 
-    parar_motor()
-    hub.speaker.beep(200,500)
-    wait(200)
-    std()
-    parar_motor
-    wait(200)
+#def obstaculo(): 
+ #   parar_motor()
+  #  hub.speaker.beep(200,500)
+   # wait(200)
+    #std()
+    #parar_motor
+    #wait(200)
 
 def mpf():
     velocidade = 100  # Velocidade dos motores
@@ -406,22 +406,22 @@ def verificar_sensor():
 def seguir_linha():
     """Função principal para seguir a linha."""
     while True:
-        comando = hub.ble.observe(125)
-        if comando == "CUIDADO":
-                parar_motor()
-                wait(100)
-                re()
-                diagonald()
-                parar_motor()
-                wait(1000)
-                moverretao()
-                diagonale()
-                parar_motor()
-                wait(2000)
+      #  comando = hub.ble.observe(125)
+       # if comando == "CUIDADO":
+             #   parar_motor()
+             #   wait(100)
+             #   re()
+              #  diagonald()
+              #  parar_motor()
+              #  wait(1000)
+              #  moverretao()
+             #   diagonale()
+             #   parar_motor()
+             #   wait(2000)
 
-        elif comando == "LIVRE": 
-            print("VENDO NADA")
-            wait(500)
+       # elif comando == "LIVRE": 
+       #     print("VENDO NADA")
+        #    wait(500)
             
 
     # Verifica se viu vermelho em HSV
