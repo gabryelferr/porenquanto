@@ -2,6 +2,7 @@ from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
+from pybricks.parameters import Axis
 hub = PrimeHub(observe_channels=[125])
 
 
@@ -397,7 +398,7 @@ def seguir_linha():
     """Função principal para seguir a linha."""
     while True:
         comando = hub.ble.observe(125)
-        if comando == "VIU OBS":
+        if comando == "CUIDADO":
                 parar_motor()
                 wait(100)
                 re()
@@ -409,32 +410,20 @@ def seguir_linha():
                 parar_motor()
                 wait(2000)
 
-        else:
-                
+        elif comando == "LIVRE": 
+            print("VENDO NADA")
+            wait(500)
+            
 
-                # obstaculo()
-                # parar_motor()
-                # wait(100)
-
-
-        # main_to_sec()
-        # data = hub.ble.observe(125)
-        # if not(data == None):
-        #     print(data)
-        #     if data == "VIU OBS":
-        #         parar_motor()
-        #         wait(100)
-        #         obstaculo()
-
-        # Verifica se viu vermelho em HSV
-            if detectar_vermelho(sensor_direito or sensor_esquerdo):
-                print("VERMELHO DETECTADO - PARANDO PARA SEMPRE!")
-                parar_motor()
-                break  # Sai do loop
-        
-            se = sensor_esquerdo.reflection()
-            sd = sensor_direito.reflection()
-            st = sensoraux.reflection()
+    # Verifica se viu vermelho em HSV
+        if detectar_vermelho(sensor_direito or sensor_esquerdo):
+            print("VERMELHO DETECTADO - PARANDO PARA SEMPRE!")
+            parar_motor()
+            break  # Sai do loop
+    
+        se = sensor_esquerdo.reflection()
+        sd = sensor_direito.reflection()
+        st = sensoraux.reflection()
 
 
             # # Condição do obstáculo
@@ -449,39 +438,40 @@ def seguir_linha():
             #      wait(10)
             #      print("dDEU CERTO")
 
-            if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-            # print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
+        if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+        # print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
+            if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
+                print("É O BLACK")
+                executar_preto()
 
-                if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
-                    print("É O BLACK")
-                    executar_preto()
+            elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
+                print("É O GREEN")
+                executar_verde()
 
-                elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
-                    print("É O GREEN")
-                    executar_verde()
-
-                elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
+        
+            elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
                     print("É O GREEN TOTAL")
                     executar_verde()
 
             # Seguir em linha reta
-            elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
+        elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
                 definir_velocidade(md, VELOCIDADE_BASE)
                 definir_velocidade(me, -VELOCIDADE_BASE)
                 mt.run(0)  # Manter reta
 
             # Curva para direita
-            elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
+        elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
                 definir_velocidade(md, -200)
                 definir_velocidade(me, -290)
                 mt.run(-295)
 
             # Curva para esquerda
-            elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
+        elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
                 definir_velocidade(me, 200)
                 definir_velocidade(md, 290)
                 mt.run(295)
 
 
         wait(50)  # Pequeno atraso para estabilidade
+
 seguir_linha()

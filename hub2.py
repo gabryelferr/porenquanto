@@ -3,24 +3,27 @@ from pybricks.pupdevices import UltrasonicSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
 
-hub = PrimeHub()
+hub = PrimeHub(broadcast_channel=125)
+
 sensor_frente = UltrasonicSensor(Port.E)
 
 while True:
     dist_frente = sensor_frente.distance() / 10  # Atualiza a cada ciclo
+    
 
-    if 13 < dist_frente <= 30:
-        hub.ble.broadcast("VIU OBS")  # envia mensagem
+    if dist_frente < 20:
+        hub.ble.broadcast("CUIDADO")  # envia mensagem
         print(f"Distância: {dist_frente:.1f} cm")
         wait(500)  # Aguarda 0.5s
-
-    elif dist_frente <= 13:
-        print(f"Distância mínima com garra")
-        wait(800)
+    
+    
     else:
-        #hub.ble.broadcast("LIVRE")  # envia outra mensagem
-        print(f"Distância segura: {dist_frente:.1f} cm")
-        break
+        hub.ble.broadcast("LIVRE")  # envia outra mensagem
+        print(f"Distâ ncia segura: {dist_frente:.1f} cm")
+        
+    wait(500)
+
+
 
     # dist_frente > 50:
         #hub.ble.broadcast("OK")
