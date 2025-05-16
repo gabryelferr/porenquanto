@@ -289,8 +289,8 @@ def definir_velocidade(motor, velocidade):
     
 
 def mover_para_frente():
-    velocidade = 100  # Velocidade dos motores
-    tempo = 1550  # Tempo de movimento em milissegundos (simulando millis())
+    velocidade = 300  # Velocidade dos motores
+    tempo = 15500  # Tempo de movimento em milissegundos (simulando millis())
 
     # Iniciando o cronômetro
     stopwatch = StopWatch()
@@ -483,4 +483,6 @@ def seguir_linha():
 
         wait(50)  # Pequeno atraso para estabilidade
 
-seguir_linha()
+# seguir_linha()
+
+mover_para_frente()
