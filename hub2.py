@@ -10,7 +10,7 @@ hub = PrimeHub(broadcast_channel=125)
 sensor_frente = UltrasonicSensor(Port.E)
 mg = Motor(Port.F)
 
-while True:
+#while True:
     
 #     dist_frente = sensor_frente.distance() / 10  # Atualiza a cada ciclo
     
@@ -40,14 +40,14 @@ while True:
 
 #         #wait(100)
 
-#     distancia = sensor.distance() / 10  # Converte mm para cm
+    # distancia = sensor.distance() / 10  # Converte mm para cm
      
 
-#     if distancia < 8:
-#         hub.ble.broadcast(("VIU OBS"))  # envia sinal de parada
+    # if distancia < 8:
+    #     hub.ble.broadcast(("VIU OBS"))  # envia sinal de parada
 
-#     else:
-#         hub.ble.broadcast(("PARAR"))  # envia sinal padrão
+    # else:
+    #     hub.ble.broadcast(("PARAR"))  # envia sinal padrão
 
 #     wait(100)
 
@@ -73,6 +73,3 @@ while True:
 #         print("Executando lógica de rampa")
 #         wait(2000)  # Espera para não repetir
 #     wait(100)
-
-
-
