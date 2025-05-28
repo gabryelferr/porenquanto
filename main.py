@@ -15,10 +15,11 @@ me = Motor(Port.D)
 md = Motor(Port.B)
 
 
-LIMIAR_PRETO = 40
+LIMIAR_PRETO = 30
 PPP = 35
 PP = 50
-VELOCIDADE_BASE = 160
+VELOCIDADE_BASE = 170
+VELOCIDADE_ALTA = 450
 
 
 
@@ -47,7 +48,7 @@ def executar_verde():
     me.run(-100)
     md.run(100)
     mt.run(0)
-    wait(50)
+    wait(80)
     parar_motor()
     wait(100)
 
@@ -152,7 +153,7 @@ def executar_preto():
 def detectar_preto(sensor):
     h, s, v = sensor.hsv()
     print(f"[PRETO] HSV: h={h}, s={s}, v={v}")
-    return (170 <= h <= 220) and (20 > s) and (38 > v > 5)
+    return (170 <= h <= 220) and (30 > s > 18) and (38 > v > 5)
 
 
 def detectar_verde(sensor):
@@ -289,7 +290,7 @@ def definir_velocidade(motor, velocidade):
     
 
 def mover_para_frente():
-    velocidade = 200  # Velocidade dos motores
+    velocidade = 250  # Velocidade dos motores
     tempo = 12500  # Tempo de movimento em milissegundos (simulando millis())
 
     # Iniciando o cronômetro
@@ -345,14 +346,6 @@ def ste():
     parar_motor()
     wait(200)
 
-#def obstaculo(): 
- #   parar_motor()
-  #  hub.speaker.beep(200,500)
-   # wait(200)
-    #std()
-    #parar_motor
-    #wait(200)
-
 def mpf():
     velocidade = 100  # Velocidade dos motores
     tempo = 1000  # Tempo de movimento em milissegundos (simulando millis())
@@ -395,6 +388,7 @@ def re():
     md.run(-200)
     wait(800)
 
+pretinho = 30
     
 def tocar_som():
     hub.speaker.beep()
@@ -402,27 +396,41 @@ def tocar_som():
 def verificar_sensor():
     return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
 
+ang = hub.imu.angular_velocity()
 
 def seguir_linha():
     """Função principal para seguir a linha."""
+    
     while True:
-      #  comando = hub.ble.observe(125)
-       # if comando == "CUIDADO":
-             #   parar_motor()
-             #   wait(100)
-             #   re()
-              #  diagonald()
-              #  parar_motor()
-              #  wait(1000)
-              #  moverretao()
-             #   diagonale()
-             #   parar_motor()
-             #   wait(2000)
+            # Lê a inclinação do robô (pitch e roll)
+        pitch, _ = hub.imu.tilt()
 
-       # elif comando == "LIVRE": 
-       #     print("VENDO NADA")
-        #    wait(500)
-            
+        # Imprime a arfagem (pitch) no console
+        # print("Arfagem (pitch):", pitch)
+
+        # Decide a velocidade com base na inclinação
+        if pitch < -15:
+            print("SUBINDOOOOOO")
+            if se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
+                md.run(450)
+                me.run(-450)
+                mt.run(0)
+                wait(2000)    
+
+            # Curva para direita
+            elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
+                definir_velocidade(md, -400)
+                definir_velocidade(me, -490)
+                mt.run(-495)
+
+            # Curva para esquerda
+            elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
+                definir_velocidade(me, 400)
+                definir_velocidade(md, 490)
+                mt.run(495)
+        else:
+            VELOCIDADE_BASE = 160  # volta ao normal
+
 
     # Verifica se viu vermelho em HSV
         if detectar_vermelho(sensor_direito or sensor_esquerdo):
@@ -435,19 +443,10 @@ def seguir_linha():
         st = sensoraux.reflection()
 
 
-            # # Condição do obstáculo
-            # if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-            #      parar_motor()
-            #      wait(00)
-            #      testtsensor()
-            #      wait(500)
-            #      parar_motor()
-            #      wait(50)
-            #      mov()
-            #      wait(10)
-            #      print("dDEU CERTO")
-
         if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+            hub.speaker.beep(900, 100)
+            parar_motor()
+            wait(1000)
         # print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
             if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
                 print("É O BLACK")
@@ -461,6 +460,7 @@ def seguir_linha():
             elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
                     print("É O GREEN TOTAL")
                     executar_verde()
+            
 
             # Seguir em linha reta
         elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
@@ -486,3 +486,6 @@ def seguir_linha():
 seguir_linha()
 
 # mover_para_frente()
+
+
+
