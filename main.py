@@ -80,7 +80,7 @@ def executar_verde():
         parar_motor()  # Garante a parada final dos motores
 
 
-    elif esq_verde: 
+    elif esq_verde and not dir_verde: 
         variavel_verde = 2
         print("VERDE NO SENSOR ESQUERDO")
         me.run(-100)
@@ -106,7 +106,7 @@ def executar_verde():
         parar_motor()
         wait(100)
 
-    elif dir_verde:
+    elif dir_verde and not esq_verde:
         variavel_verde = 1
         print("VERDE NO SENSOR DIRETO")
         me.run(-100)
@@ -153,13 +153,14 @@ def executar_preto():
 def detectar_preto(sensor):
     h, s, v = sensor.hsv()
     print(f"[PRETO] HSV: h={h}, s={s}, v={v}")
-    return (170 <= h <= 220) and (30 > s > 18) and (38 > v > 5)
+    return (170 <= h <= 220) and (30 > s >= 11) and (38 > v > 20)
 
 
 def detectar_verde(sensor):
     h, s, v = sensor.hsv()
     print(f"[VERDE]  HSV detectado: h={h}, s={s}, v={v}")
-    return (148 <= h <= 158) and (85 > s > 60) and (50 > v > 28)
+    return (h > 140 and h <= 160) and (s >= 60 and s <= 75) and (v >= 28 and v <= 40)
+
 
 
 def detectar_vermelho(sensor):
@@ -441,25 +442,29 @@ def seguir_linha():
         se = sensor_esquerdo.reflection()
         sd = sensor_direito.reflection()
         st = sensoraux.reflection()
-        
+
 
         if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-            hub.speaker.beep(900, 100)
+            #hub.speaker.beep(900, 100)
             parar_motor()
-            wait(1000)
+            wait(2000)
         # print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
             if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
                 print("É O BLACK")
                 executar_preto()
 
-            elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
-                print("É O GREEN")
+            elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
+                print("É O GREEN TOTAL")
                 executar_verde()
 
-        
-            elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
-                    print("É O GREEN TOTAL")
-                    executar_verde()
+            elif detectar_verde(sensor_esquerdo) and not detectar_preto(sensor_direito):
+                print("É O GREEN NO ESQUERDO")
+                executar_verde()
+
+            elif detectar_verde(sensor_direito) and not detectar_preto(sensor_esquerdo):
+                print("É O GREEN NO DIREITO")
+                executar_verde()
+
             
 
             # Seguir em linha reta
