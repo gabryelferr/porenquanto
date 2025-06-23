@@ -441,7 +441,7 @@ def seguir_linha():
         se = sensor_esquerdo.reflection()
         sd = sensor_direito.reflection()
         st = sensoraux.reflection()
-
+        
 
         if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
             hub.speaker.beep(900, 100)
