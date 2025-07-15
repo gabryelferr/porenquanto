@@ -2,14 +2,13 @@ from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop
 from pybricks.tools import wait, StopWatch
-from pybricks.parameters import Axis
 hub = PrimeHub(observe_channels=[125])
 
 
 
 sensor_esquerdo = ColorSensor(Port.C)
 sensor_direito = ColorSensor(Port.A)
-sensoraux = ColorSensor(Port.E)
+senaoraux = ColorSensor(Port.E)
 mt = Motor(Port.F)
 me = Motor(Port.D)
 md = Motor(Port.B)
@@ -23,9 +22,138 @@ VELOCIDADE_BASE = 160
 
 
 
+def nove(): 
+    me.run(200)
+    md.run(200)
+    mt.run(200)
+    wait(1600)
+
+def novd(): 
+    me.run(-200)
+    md.run(-200)
+    mt.run(-200)
+    wait(1600)
 
 
 
+# def executar_verde():
+#     parar_motor()
+#     hub.speaker.beep(1000, 700)
+#     wait(500)
+#     variavel_verde = 0
+#     print("É VERDE — Executando lógica especial")
+
+#     me.run(-100)
+#     md.run(100)
+#     mt.run(0)
+#     wait(50)
+#     parar_motor()
+#     wait(100)
+
+#     esq_verde = detectar_verde(sensor_esquerdo)
+#     dir_verde = detectar_verde(sensor_direito)
+
+#     if esq_verde and dir_verde:
+#         hub.speaker.beep(800, 700)
+#         variavel_verde = 3
+#         print("VERDE NOS DOIS SENSORES")
+#         me.run(-100)
+#         md.run(100)
+#         mt.run(0)
+#         wait(1300)
+#         parar_motor()
+#         novd()
+#         parar_motor()
+#         wait(100)
+#         novd()
+#         parar_motor()
+#         wait(100)
+
+#     elif esq_verde: 
+#         variavel_verde = 2
+#         print("VERDE NO SENSOR ESQUERDO")
+#         me.run(-100)
+#         md.run(100)
+#         mt.run(0)
+#         wait(1200)
+
+#         relogio = StopWatch()
+#         relogio.reset()
+
+#         me.run(150)
+#         md.run(150)
+#         mt.run(150)
+
+#         while relogio.time() < 5000:
+#             if sensor_esquerdo.reflection() < PPP:
+#                 print("SENSOR VIU PRETO")
+#                 me.stop()
+#                 md.stop()
+#                 mt.stop()
+#                 break
+#         wait(10)
+#         parar_motor()
+#         wait(100)
+
+#     elif dir_verde:
+#         variavel_verde = 1
+#         print("VERDE NO SENSOR DIRETO")
+#         me.run(-100)
+#         md.run(100)
+#         mt.run(0)
+#         wait(1200)
+
+#         relogio = StopWatch()
+#         relogio.reset()
+
+#         me.run(-150)
+#         md.run(-150)
+#         mt.run(-150)
+
+#         while relogio.time() < 5000:
+#             if sensor_direito.reflection() < PPP:
+#                 print("SENSOR VIU PRETO")
+#                 me.stop()
+#                 md.stop()
+#                 mt.stop()
+#                 break
+#         wait(10)
+#         parar_motor()
+#         wait(100)
+
+
+#     else:
+#         print("NÃO TEM VERDE AQUI")
+    
+#     wait(500)
+
+def executar_preto():
+    print("É PRETO — Executando lógica normal de interseção preta")
+    parar_motor()
+    wait(00)
+    testtsensor()
+    wait(500)
+    parar_motor()
+    wait(50)
+    mov()
+    wait(10)
+    print("DEU CERTO")
+
+def detectar_preto(sensor):
+    h, s, v = sensor.hsv()
+    print(f"[PRETO] HSV: h={h}, s={s}, v={v}")
+    return (170 <= h <= 220) and (20 > s) and (38 > v > 5)
+
+def detectar_verde(sensor):
+    h, s, v = sensor.hsv()
+    print(f"[VERDE]  HSV detectado: h={h}, s={s}, v={v}")
+    return (148 <= h <= 158) and (85 > s > 60) and (50 > v > 28)
+
+
+def detectar_vermelho(sensor):
+    h, s, v = sensor.hsv()
+    print(f"HSV detectado: h={h}, s={s}, v={v}")
+    return (h >= 340) and (85 > s > 75) and (60 > v > 45)
 
 
 def recuadinha():
@@ -109,10 +237,9 @@ def parar_motor():
     mt.stop()
 
 
-# Teste do sensor para verificar se está vendo preto ou branco
-# e se os dois sensores estão vendo preto, indicando uma interseção.
+
 def testtsensor():
-    st = sensoraux.reflection()
+    st = senaoraux.reflection()
     if st < LIMIAR_PRETO: 
      print("PRETO PEGANDO!")
 
@@ -120,7 +247,7 @@ def testtsensor():
      print("TA VENDO BRANCO!")
                 
                 
-    if sensor_direito.reflection() < PPP and sensor_esquerdo.reflection() < PPP and sensoraux.reflection() < LIMIAR_PRETO:
+    if sensor_direito.reflection() < PPP and sensor_esquerdo.reflection() < PPP and senaoraux.reflection() < LIMIAR_PRETO:
      print("INTERSECÇÃO")
 
 
@@ -148,32 +275,12 @@ def girar(velocidade, tempo):
 def definir_velocidade(motor, velocidade):
     """Define a velocidade de um motor específico."""
     motor.run(velocidade)
-    
 
-def mover_para_frente():
-    velocidade = 200  # Velocidade dos motores
-    tempo = 12500  # Tempo de movimento em milissegundos (simulando millis())
-
-    # Iniciando o cronômetro
-    stopwatch = StopWatch()
-    
-    # Inicia os motores ao mesmo tempo
-    md.run(velocidade)  # Motor Direito
-    me.run(-velocidade)  # Motor Esquerdo
-   
-    
-    # Aguarda até que o tempo especificado tenha passado
-    while stopwatch.time() < tempo:
-        pass  # Aguarda até o tempo passar (sem bloquear outras execuções)
-
-    # Após o tempo, para o movimento
-    md.stop()
-    me.stop()
 
 
 def mpf_preto():
     velocidade = 100  # Velocidade dos motores
-    tempo = 1780  # Tempo de movimento em milissegundos (simulando millis())
+    tempo = 1480  # Tempo de movimento em milissegundos (simulando millis())
 
     # Iniciando o cronômetro
     stopwatch = StopWatch()
@@ -191,7 +298,6 @@ def mpf_preto():
     md.stop()
     me.stop()
 
-# Andar de lado para direita
 def std():
     md.stop
     me.stop
@@ -200,7 +306,6 @@ def std():
     parar_motor()
     wait(200)
 
-# Andar de lado para esquerda
 def ste():
     md.stop
     me.stop
@@ -209,13 +314,17 @@ def ste():
     parar_motor()
     wait(200)
 
-#def obstaculo(): 
- #   parar_motor()
-  #  hub.speaker.beep(200,500)
-   # wait(200)
-    #std()
-    #parar_motor
-    #wait(200)
+def obstaculo(): 
+    parar_motor()
+    hub.speaker.beep(200,500)
+    wait(200)
+    std()
+    parar_motor
+    wait(200)
+
+def mpf():
+    velocidade = 100  # Velocidade dos motores
+    tempo = 1000  # Tempo de movimento em milissegundos (simulando millis())
             
 
 def diagonald():
@@ -262,28 +371,41 @@ def tocar_som():
 def verificar_sensor():
     return sensor_esquerdo.reflection() < 20  # Retorna True se a reflexão for menor que 20 (detectando preto)
 
-ang = hub.imu.angular_velocity()
 
 def seguir_linha():
     """Função principal para seguir a linha."""
-    
     while True:
-            # Lê a inclinação do robô (pitch e roll)
-        pitch, _ = hub.imu.tilt()
+        comando = hub.ble.observe(125)
+        if comando:
+            print("Comando recebido:", comando)
+            if comando == "VIU OBS":
+                parar_motor()
+                wait(100)
+                re()
+                diagonald()
+                parar_motor()
+                wait(1000)
+                moverretao()
+                diagonale()
+                parar_motor()
+                wait(2000)
+                
 
-        # Imprime a arfagem (pitch) no console
-        # print("Arfagem (pitch):", pitch)
+                # obstaculo()
+                # parar_motor()
+                # wait(100)
 
-        # Decide a velocidade com base na inclinação
-        if pitch < -15:
-            print("SUBINDOOOOOO")
-            if se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
-                md.run(450)
-                me.run(-450)
-                mt.run(0)
-                wait(2000)    
 
-    # Verifica se viu vermelho em HSV
+        # main_to_sec()
+        # data = hub.ble.observe(125)
+        # if not(data == None):
+        #     print(data)
+        #     if data == "VIU OBS":
+        #         parar_motor()
+        #         wait(100)
+        #         obstaculo()
+
+        # Verifica se viu vermelho em HSV
         if detectar_vermelho(sensor_direito or sensor_esquerdo):
             print("VERMELHO DETECTADO - PARANDO PARA SEMPRE!")
             parar_motor()
@@ -291,55 +413,51 @@ def seguir_linha():
     
         se = sensor_esquerdo.reflection()
         sd = sensor_direito.reflection()
-        st = sensoraux.reflection()
+        st = senaoraux.reflection()
 
 
-            # # Condição do obstáculo
-            # if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-            #      parar_motor()
-            #      wait(00)
-            #      testtsensor()
-            #      wait(500)
-            #      parar_motor()
-            #      wait(50)
-            #      mov()
-            #      wait(10)
-            #      print("dDEU CERTO")
+        # # Condição do obstáculo
+        # if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+        #      parar_motor()
+        #      wait(00)
+        #      testtsensor()
+        #      wait(500)
+        #      parar_motor()
+        #      wait(50)
+        #      mov()
+        #      wait(10)
+        #      print("dDEU CERTO")
 
-        if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
-        # print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
-            if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
-                print("É O BLACK")
-                executar_preto()
+        # if se < LIMIAR_PRETO and sd < LIMIAR_PRETO:
+        #     print("OS DOIS SENSORES VIRAM PRETO — VERIFICANDO HSV...")
 
-            elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
-                print("É O GREEN")
-                executar_verde()
+        #     if detectar_preto(sensor_esquerdo) and detectar_preto(sensor_direito):
+        #         print("É O BLACK")
+        #         executar_preto()
 
-        
-            elif detectar_verde(sensor_esquerdo) and detectar_verde(sensor_direito):
-                    print("É O GREEN TOTAL")
-                    executar_verde()
+            # elif detectar_verde(sensor_esquerdo) or detectar_verde(sensor_direito):
+            #     print("É O GREEN")
+            #     executar_verde()
 
-            # Seguir em linha reta
-        elif se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
-                definir_velocidade(md, VELOCIDADE_BASE)
-                definir_velocidade(me, -VELOCIDADE_BASE)
-                mt.run(0)  # Manter reta
+        # Seguir em linha reta
+        if se > LIMIAR_PRETO and sd > LIMIAR_PRETO:
+            definir_velocidade(md, VELOCIDADE_BASE)
+            definir_velocidade(me, -VELOCIDADE_BASE)
+            mt.run(0)  # Manter reta
 
-            # Curva para direita
+        # Curva para direita
         elif se > LIMIAR_PRETO and sd <= LIMIAR_PRETO:
-                definir_velocidade(md, -200)
-                definir_velocidade(me, -290)
-                mt.run(-295)
+            definir_velocidade(md, -200)
+            definir_velocidade(me, -290)
+            mt.run(-295)
 
-            # Curva para esquerda
+        # Curva para esquerda
         elif se <= LIMIAR_PRETO and sd > LIMIAR_PRETO:
-                definir_velocidade(me, 200)
-                definir_velocidade(md, 290)
-                mt.run(295)
+            definir_velocidade(me, 200)
+            definir_velocidade(md, 290)
+            mt.run(295)
 
 
         wait(50)  # Pequeno atraso para estabilidade
 
-seguir_linha()
+mover_para_frente()

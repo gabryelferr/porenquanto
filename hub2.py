@@ -7,22 +7,24 @@ from pybricks.tools import wait
 
 hub = PrimeHub(broadcast_channel=125)
 
-sensor_frente = UltrasonicSensor(Port.C)
-mg = Motor(Port.E)
+sensor_frente = UltrasonicSensor(Port.F)
+mg = Motor(Port.D)
 
 while True:
     
     dist_frente = sensor_frente.distance() / 10  # Atualiza a cada ciclo
     
 
-    if dist_frente < 30:
+    if dist_frente < 15:
         hub.ble.broadcast("CUIDADO")  # envia mensagem
         print(f"Distância: {dist_frente:.1f} cm")
         wait(2000)  # Aguarda 2s
-        mg.run(-450)
+        mg.run(-250)
         mg.stop
-        wait(10000)
-        mg.run(450)
+        wait(2000)
+        mg.run(250)
+        wait(2000)
+
         mg.stop
     
     
