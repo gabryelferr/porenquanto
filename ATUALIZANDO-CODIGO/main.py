@@ -459,5 +459,3 @@ def seguir_linha():
 
 
         wait(50)  # Pequeno atraso para estabilidade
-
-mover_para_frente()
